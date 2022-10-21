@@ -5,7 +5,7 @@ A fast solution in rust to Matt Parker's challenge.
 ## The challenge
 
 The problem is to find 5 words with 25 unique letters. The words must be exactly five letters long. The challenge got
-popularized by the game viral Wordle and Matt Parker's video on the topic. I highly suggest to watch the video as well
+popularized by the viral game Wordle and Matt Parker's video on the topic. I highly suggest to watch the video as well
 as the follow-up video about the optimisation.
 
 [![The video](https://img.youtube.com/vi/_-AfhLQfb6w/0.jpg)](https://www.youtube.com/watch?v=_-AfhLQfb6w)
