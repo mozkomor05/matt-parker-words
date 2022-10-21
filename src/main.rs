@@ -60,6 +60,7 @@ impl WordFinder for Solver {
             }
         }
 
+        // sorting makes it possible to use dedup and also potentially improves performance (branch prediction)
         self.valid_masks.sort();
         self.valid_masks.dedup();
     }
@@ -68,21 +69,24 @@ impl WordFinder for Solver {
         vec.clear();
         vec.extend(
             prev_vec.iter()
-                .skip(start)
-                .filter(|&m| m & mask == 0)
+                .skip(start) // skip already checked elements (to increase performance and avoid permutations)
+                .filter(|&m| m & mask == 0) // any non-zero values indicates that at least two bits are 1 in the same position => at least one letter is shared
         );
         vec
     }
 
     fn find_solutions(&mut self) {
-        self.solutions = self.valid_masks.par_iter().enumerate().flat_map(|(i, &mask)| {
+        self.solutions = self.valid_masks.par_iter().enumerate().flat_map(|(i, &mask)| { // parallel iteration
             let mut solutions = Vec::new();
 
+            // pre-allocation of vectors to avoid allocations in the loop
+            // it is not convenient to allocate vectors outside the parallel loop because then we would have to use a mutex to access them
             let words1 = &mut Vec::with_capacity(self.valid_masks.len());
             let words2 = &mut Vec::with_capacity(self.valid_masks.len());
             let words3 = &mut Vec::with_capacity(self.valid_masks.len());
             let words4 = &mut Vec::with_capacity(self.valid_masks.len());
 
+            // nested iteration is around ~80% faster than recursion
             Self::filter_vec(words1, &self.valid_masks, mask, i);
             for (j, &mask1) in words1.iter().enumerate() {
                 Self::filter_vec(words2, words1, mask1, j);
